@@ -5,6 +5,10 @@ Template for one-page projects
 import os
 import sys
 
+"""
+Settings
+"""
+
 from django.conf import settings
 
 DEBUG = os.environ.get('DEBUG', 'on') == 'on'
@@ -24,6 +28,10 @@ settings.configure(
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
         ),
     )
+
+"""
+Views
+"""
 
 from django.conf.urls import url
 from django.core.wsgi import get_wsgi_application

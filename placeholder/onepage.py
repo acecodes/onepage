@@ -1,9 +1,13 @@
 """
-Template for one-page projects
+Placeholder project
 """
 
 import os
 import sys
+
+"""
+Settings
+"""
 
 from django.conf import settings
 
@@ -25,15 +29,38 @@ settings.configure(
         ),
     )
 
+"""
+Views
+"""
+
 from django.conf.urls import url
 from django.core.wsgi import get_wsgi_application
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
+from django import forms
+from io import BytesIO
+from PIL import Image
+
+
+class ImageForm(forms.Form):
+    """Form to validate request placeholder image."""
+
+    height = forms.IntegerField(min_value=1, max_value=2000)
+    width = forms.IntegerField(min_value=1, max_value=2000)
 
 def index(request):
     return HttpResponse('Testing, 123...')
 
+def placeholder(request, width, height):
+    form = ImageForm({'height':height, 'width':width})
+    if form.is_valid():
+        height = form.cleaned_data['height']
+        width = form.cleaned_data['width']
+        return HttpResponse('To be replaced...')
+    return HttpResponseBadRequest('Invalid image request')
+
 urlpatterns = (
-    url(r'^$', index)
+    url(r'^$', index, name='homepage'),
+    url(r'^image/(?P<width>[0-9]+)x(?P<height>[0-9]+)/$', placeholder, name='placeholder')
     )
 
 application = get_wsgi_application()
