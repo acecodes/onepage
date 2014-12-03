@@ -38,7 +38,7 @@ from django.core.wsgi import get_wsgi_application
 from django.http import HttpResponse, HttpResponseBadRequest
 from django import forms
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageDraw
 
 
 class ImageForm(forms.Form):
@@ -53,10 +53,27 @@ def index(request):
 def placeholder(request, width, height):
     form = ImageForm({'height':height, 'width':width})
     if form.is_valid():
-        height = form.cleaned_data['height']
-        width = form.cleaned_data['width']
-        return HttpResponse('To be replaced...')
+        image = form.generate()
+        return HttpResponse(image, content_type='image/png')
     return HttpResponseBadRequest('Invalid image request')
+
+def generate(self, image_format="PNG"):
+    """Generate an image of the given type and return as raw bytes"""
+    height = self.cleaned_data['height']
+    width = self.cleaned_date['width']
+    image = Image.new('RGB', (width, height))
+    draw = ImageDraw.Draw(image)
+    text = '{0} x {1}'.format(width, height)
+    textwidth, textheight = draw.textsize(text)
+    if textwidth < width and textheight < height:
+        texttop = (height - textheight) // 2
+        textleft = (width - textwidth) // 2
+        draw.text((textleft, texttop), text, fill=(255, 255, 255))
+    content = BytesIO()
+    image.save(content, image_format)
+    content.seek(0)
+    return content
+
 
 urlpatterns = (
     url(r'^$', index, name='homepage'),
