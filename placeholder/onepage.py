@@ -37,9 +37,12 @@ from django.conf.urls import url
 from django.core.wsgi import get_wsgi_application
 from django.core.cache import cache
 from django.http import HttpResponse, HttpResponseBadRequest
+from django.views.decorators.thtp import etag
 from django import forms
 from io import BytesIO
 from PIL import Image, ImageDraw
+import hashlib
+import os
 
 
 class ImageForm(forms.Form):
@@ -50,6 +53,10 @@ class ImageForm(forms.Form):
 
 def index(request):
     return HttpResponse('Testing, 123...')
+
+def generate_etag(request, width, height):
+    content = 'Placeholder: {0} x {1}'.format(width, height)
+    return hashlib.sha1(content.encode('utf-8')).hexdigest()
 
 def placeholder(request, width, height):
     form = ImageForm({'height':height, 'width':width})
