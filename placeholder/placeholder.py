@@ -27,7 +27,19 @@ settings.configure(
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
         ),
+    INSTALLED_APPS=(
+'django.contrib.staticfiles',
+	),
+	TEMPLATE_DIRS=(
+	os.path.join(BASE_DIR, 'templates'),
+	),
+	STATICFILES_DIRS=(
+	os.path.join(BASE_DIR, 'static'),
+	),
+	STATIC_URL='/static/',
     )
+
+
 
 """
 Views
@@ -58,6 +70,7 @@ def generate_etag(request, width, height):
     content = 'Placeholder: {0} x {1}'.format(width, height)
     return hashlib.sha1(content.encode('utf-8')).hexdigest()
 
+@etag(generate_etag)
 def placeholder(request, width, height):
     form = ImageForm({'height':height, 'width':width})
     if form.is_valid():
