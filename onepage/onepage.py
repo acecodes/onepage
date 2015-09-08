@@ -28,8 +28,8 @@ settings.configure(
         'django.middleware.common.CommonMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        ),
-    )
+    ),
+)
 
 """
 Views
@@ -39,12 +39,13 @@ from django.conf.urls import url
 from django.core.wsgi import get_wsgi_application
 from django.http import HttpResponse
 
+
 def index(request):
     return HttpResponse('Testing, 123...')
 
 urlpatterns = (
     url(r'^$', index)
-    )
+)
 
 application = get_wsgi_application()
 
