@@ -4,12 +4,15 @@ Template for one-page projects
 
 import os
 import sys
+from django.conf.urls import url
+from django.core.wsgi import get_wsgi_application
+from django.http import HttpResponse
+from django.conf import settings
 
 """
 Settings
 """
 
-from django.conf import settings
 
 DEBUG = os.environ.get('DEBUG', 'on') == 'on'
 
@@ -34,10 +37,6 @@ settings.configure(
 """
 Views
 """
-
-from django.conf.urls import url
-from django.core.wsgi import get_wsgi_application
-from django.http import HttpResponse
 
 
 def index(request):

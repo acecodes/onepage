@@ -1,7 +1,19 @@
 """
 Placeholder project
 """
+from django.shortcuts import render
+from django.conf.urls import url
+from django.core.urlresolvers import reverse
+from django.core.wsgi import get_wsgi_application
+from django.core.cache import cache
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.views.decorators.http import etag
+from django import forms
+from io import BytesIO
+from PIL import Image, ImageDraw
+from django.conf import settings
 
+import hashlib
 import os
 import sys
 
@@ -9,11 +21,10 @@ import sys
 Settings
 """
 
-from django.conf import settings
-
 DEBUG = os.environ.get('DEBUG', 'on') == 'on'
 
-SECRET_KEY = os.environ.get('SECRET_KEY', ')4*fk*az97t-v+bs^mj)49i(c$q3kjypp87s+e-r+n5pjs1xf5')
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY', ')4*fk*az97t-v+bs^mj)49i(c$q3kjypp87s+e-r+n5pjs1xf5')
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
@@ -28,39 +39,22 @@ settings.configure(
         'django.middleware.common.CommonMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        ),
+    ),
     INSTALLED_APPS=(
-'django.contrib.staticfiles',
-	),
-	TEMPLATE_DIRS=(
-	os.path.join(BASE_DIR, 'templates'),
-	),
-	STATICFILES_DIRS=(
-	os.path.join(BASE_DIR, 'static'),
-	),
-	STATIC_URL='/static/',
-    )
-
-
-
-"""
-Views
-"""
-from django.shortcuts import render
-from django.conf.urls import url
-from django.core.urlresolvers import reverse
-from django.core.wsgi import get_wsgi_application
-from django.core.cache import cache
-from django.http import HttpResponse, HttpResponseBadRequest
-from django.views.decorators.http import etag
-from django import forms
-from io import BytesIO
-from PIL import Image, ImageDraw
-import hashlib
-import os
+        'django.contrib.staticfiles',
+    ),
+    TEMPLATE_DIRS=(
+        os.path.join(BASE_DIR, 'templates'),
+    ),
+    STATICFILES_DIRS=(
+        os.path.join(BASE_DIR, 'static'),
+    ),
+    STATIC_URL='/static/',
+)
 
 
 class ImageForm(forms.Form):
+
     """Form to validate request placeholder image."""
 
     height = forms.IntegerField(min_value=1, max_value=2000)
@@ -84,16 +78,18 @@ class ImageForm(forms.Form):
             content = BytesIO()
             image.save(content, image_format)
             content.seek(0)
-            cache.set(key, content, 60*60)
+            cache.set(key, content, 60 * 60)
         return content
+
 
 def generate_etag(request, width, height):
     content = 'Placeholder: {0} x {1}'.format(width, height)
     return hashlib.sha1(content.encode('utf-8')).hexdigest()
 
+
 @etag(generate_etag)
 def placeholder(request, width, height):
-    form = ImageForm({'height':height, 'width':width})
+    form = ImageForm({'height': height, 'width': width})
     if form.is_valid():
         image = form.generate()
         return HttpResponse(image, content_type='image/png')
@@ -101,15 +97,16 @@ def placeholder(request, width, height):
 
 
 def index(request):
-    example = reverse('placeholder', kwargs={'width':50, 'height':50})
+    example = reverse('placeholder', kwargs={'width': 50, 'height': 50})
     context = {'example': request.build_absolute_uri(example)}
     return render(request, 'home.html', context)
 
 
 urlpatterns = (
     url(r'^$', index, name='homepage'),
-    url(r'^image/(?P<width>[0-9]+)x(?P<height>[0-9]+)/$', placeholder, name='placeholder')
-    )
+    url(r'^image/(?P<width>[0-9]+)x(?P<height>[0-9]+)/$',
+        placeholder, name='placeholder')
+)
 
 application = get_wsgi_application()
 
